@@ -1,2 +1,2 @@
 # source
-To initialize
+Based on Braindecode 
