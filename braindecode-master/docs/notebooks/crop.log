@@ -1,0 +1,59 @@
+=== Config module and env ===
+=== Run job on nic116 -  Wed Apr 4 15:17:36 CEST 2018  ===
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+[0;32m/svub2/defilaef/work/Cropped_Decoding_data.py[0m in [0;36m<module>[0;34m()[0m
+[1;32m     33[0m [0;31m# Load each of the files[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     34[0m parts = [mne.io.read_raw_edf(path,preload=True,stim_channel='auto', verbose='WARNING')
+[0;32m---> 35[0;31m          for path in physionet_paths]
+[0m[1;32m     36[0m [0;34m[0m[0m
+[1;32m     37[0m [0;34m[0m[0m
+
+[0;32m/svub2/defilaef/work/Cropped_Decoding_data.py[0m in [0;36m<listcomp>[0;34m(.0)[0m
+[1;32m     33[0m [0;31m# Load each of the files[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     34[0m parts = [mne.io.read_raw_edf(path,preload=True,stim_channel='auto', verbose='WARNING')
+[0;32m---> 35[0;31m          for path in physionet_paths]
+[0m[1;32m     36[0m [0;34m[0m[0m
+[1;32m     37[0m [0;34m[0m[0m
+
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/io/edf/edf.py[0m in [0;36mread_raw_edf[0;34m(input_fname, montage, eog, misc, stim_channel, annot, annotmap, exclude, preload, verbose)[0m
+[1;32m   1235[0m     return RawEDF(input_fname=input_fname, montage=montage, eog=eog, misc=misc,
+[1;32m   1236[0m                   [0mstim_channel[0m[0;34m=[0m[0mstim_channel[0m[0;34m,[0m [0mannot[0m[0;34m=[0m[0mannot[0m[0;34m,[0m [0mannotmap[0m[0;34m=[0m[0mannotmap[0m[0;34m,[0m[0;34m[0m[0m
+[0;32m-> 1237[0;31m                   exclude=exclude, preload=preload, verbose=verbose)
+[0m
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/io/edf/edf.py[0m in [0;36m__init__[0;34m(self, input_fname, montage, eog, misc, stim_channel, annot, annotmap, exclude, preload, verbose)[0m
+
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/utils.py[0m in [0;36mverbose[0;34m(function, *args, **kwargs)[0m
+[1;32m    725[0m         [0;31m# set it back if we get an exception[0m[0;34m[0m[0;34m[0m[0m
+[1;32m    726[0m         [0;32mwith[0m [0muse_log_level[0m[0;34m([0m[0mverbose_level[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0m
+[0;32m--> 727[0;31m             [0;32mreturn[0m [0mfunction[0m[0;34m([0m[0;34m*[0m[0margs[0m[0;34m,[0m [0;34m**[0m[0mkwargs[0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m    728[0m     [0;32mreturn[0m [0mfunction[0m[0;34m([0m[0;34m*[0m[0margs[0m[0;34m,[0m [0;34m**[0m[0mkwargs[0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    729[0m [0;34m[0m[0m
+
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/io/edf/edf.py[0m in [0;36m__init__[0;34m(self, input_fname, montage, eog, misc, stim_channel, annot, annotmap, exclude, preload, verbose)[0m
+[1;32m    162[0m         [0minput_fname[0m [0;34m=[0m [0mos[0m[0;34m.[0m[0mpath[0m[0;34m.[0m[0mabspath[0m[0;34m([0m[0minput_fname[0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    163[0m         info, edf_info = _get_info(input_fname, stim_channel, annot,
+[0;32m--> 164[0;31m                                    annotmap, eog, misc, exclude, preload)
+[0m[1;32m    165[0m         [0mlogger[0m[0;34m.[0m[0minfo[0m[0;34m([0m[0;34m'Created Raw.info structure...'[0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    166[0m         [0m_check_update_montage[0m[0;34m([0m[0minfo[0m[0;34m,[0m [0mmontage[0m[0;34m)[0m[0;34m[0m[0m
+
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/io/edf/edf.py[0m in [0;36m_get_info[0;34m(fname, stim_channel, annot, annotmap, eog, misc, exclude, preload)[0m
+[1;32m    414[0m         [0;32mif[0m [0mannot[0m [0;32mis[0m [0;32mnot[0m [0;32mNone[0m[0;34m:[0m[0;34m[0m[0m
+[1;32m    415[0m             [0mwarn[0m[0;34m([0m[0;34m'Annotations not yet supported for GDF files.'[0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 416[0;31m         [0medf_info[0m [0;34m=[0m [0m_read_gdf_header[0m[0;34m([0m[0mfname[0m[0;34m,[0m [0mstim_channel[0m[0;34m,[0m [0mexclude[0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m    417[0m         [0;32mif[0m [0;34m'stim_data'[0m [0;32mnot[0m [0;32min[0m [0medf_info[0m [0;32mand[0m [0mstim_channel[0m [0;34m==[0m [0;34m'auto'[0m[0;34m:[0m[0;34m[0m[0m
+[1;32m    418[0m             [0mstim_channel[0m [0;34m=[0m [0;32mNone[0m  [0;31m# Cannot construct stim channel.[0m[0;34m[0m[0m
+
+[0;32m~/anaconda3/lib/python3.6/site-packages/mne/io/edf/edf.py[0m in [0;36m_read_gdf_header[0;34m(fname, stim_channel, exclude)[0m
+[1;32m    696[0m     [0medf_info[0m[0;34m[[0m[0;34m'annot'[0m[0;34m][0m [0;34m=[0m [0;32mNone[0m[0;34m[0m[0m
+[1;32m    697[0m     [0medf_info[0m[0;34m[[0m[0;34m'annotmap'[0m[0;34m][0m [0;34m=[0m [0;32mNone[0m[0;34m[0m[0m
+[0;32m--> 698[0;31m     [0;32mwith[0m [0mopen[0m[0;34m([0m[0mfname[0m[0;34m,[0m [0;34m'rb'[0m[0;34m)[0m [0;32mas[0m [0mfid[0m[0;34m:[0m[0;34m[0m[0m
+[0m[1;32m    699[0m [0;34m[0m[0m
+[1;32m    700[0m         [0mversion[0m [0;34m=[0m [0mfid[0m[0;34m.[0m[0mread[0m[0;34m([0m[0;36m8[0m[0;34m)[0m[0;34m.[0m[0mdecode[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: '/svub2/defilaef/work/u/defilaef/work/samples/A01E.gdf'
+=== Done ===
+Job ID: 1488773
+Job Name: crop
+Resources Requested: nodes=1:ppn=4,walltime=00:10:00,mem=6gb,file=1gb,neednodes=1:ppn=4
+Resources Used: cput=00:00:02,vmem=0kb,walltime=00:00:06,mem=131532kb,energy_used=0
