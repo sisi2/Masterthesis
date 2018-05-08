@@ -7,7 +7,7 @@ from braindecode.torch_ext.functions import safe_log, square
 from braindecode.torch_ext.util import np_to_var
 
 
-class RecuNeuralNet(object):
+class ShallowFBCSPNet(object):
     """
     Shallow ConvNet model from [2]_.
 
