@@ -34,7 +34,7 @@ class ShallowFBCSPNet(object):
                  pool_nonlin=safe_log,
                  split_first_layer=True,
                  batch_norm=True,
-                 batch_norm_alpha=0.1,
+                 # batch_norm_alpha=0.1,
                  drop_prob=0.5):
         if final_conv_length == 'auto':
             assert input_time_length is not None

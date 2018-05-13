@@ -20,31 +20,9 @@ class RecurrentNeuralNet(object):
     """
     def __init__(self, in_chans,
                  n_classes,
-                 input_time_length,
-                 final_conv_length,
-                 n_filters_time=25,
-                 n_filters_spat=25,
-                 filter_time_length=10,
-                 pool_time_length=3,
-                 pool_time_stride=3,
-                 n_filters_2=50,
-                 filter_length_2=10,
-                 n_filters_3=100,
-                 filter_length_3=10,
-                 n_filters_4=200,
-                 filter_length_4=10,
-                 first_nonlin=elu,
-                 first_pool_mode='max',
-                 first_pool_nonlin=identity,
-                 later_nonlin=elu,
-                 later_pool_mode='max',
-                 later_pool_nonlin=identity,
-                 drop_prob=0.5,
-                 double_time_convs=False,
-                 split_first_layer=True,
-                 batch_norm=True,
-                 batch_norm_alpha=0.1,
-                 stride_before_pool=False):
+                 final_conv_length='auto',
+                 input_time_length=None,
+                 ):
         if final_conv_length == 'auto':
             assert input_time_length is not None
 
