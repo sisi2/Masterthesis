@@ -1,52 +1,28 @@
 import numpy as np
+import torch.nn as nn
 #from torch import nn
-#from torch.nn import init
-#from torch.nn.functional import elu
+from torch.nn import init
+from torch.nn.functional import elu
 from braindecode.torch_ext.modules import Expression, AvgPool2dWithConv
 from braindecode.torch_ext.functions import identity
 from braindecode.torch_ext.util import np_to_var
 
 
-class Deep4Net(object):
+class RecurrentNeuralNet(object):
     """
-    Deep ConvNet model from [1]_.
+    Recurrent Neural Network.
 
     References
     ----------
 
-    .. [1] Schirrmeister, R. T., Springenberg, J. T., Fiederer, L. D. J., 
-       Glasstetter, M., Eggensperger, K., Tangermann, M., ... & Ball, T. (2017).
-       Deep learning with convolutional neural networks for EEG decoding and
-       visualization.
-       arXiv preprint arXiv:1703.05051.
+    .. Dany Efila 
+       dany.simone.efila.efila@ulb.ac.be
     """
     def __init__(self, in_chans,
                  n_classes,
-                 input_time_length,
-                 final_conv_length,
-                 n_filters_time=25,
-                 n_filters_spat=25,
-                 filter_time_length=10,
-                 pool_time_length=3,
-                 pool_time_stride=3,
-                 n_filters_2=50,
-                 filter_length_2=10,
-                 n_filters_3=100,
-                 filter_length_3=10,
-                 n_filters_4=200,
-                 filter_length_4=10,
-                 first_nonlin=elu,
-                 first_pool_mode='max',
-                 first_pool_nonlin=identity,
-                 later_nonlin=elu,
-                 later_pool_mode='max',
-                 later_pool_nonlin=identity,
-                 drop_prob=0.5,
-                 double_time_convs=False,
-                 split_first_layer=True,
-                 batch_norm=True,
-                 batch_norm_alpha=0.1,
-                 stride_before_pool=False):
+                 final_conv_length='auto',
+                 input_time_length=None,
+                 ):
         if final_conv_length == 'auto':
             assert input_time_length is not None
 
@@ -189,4 +165,3 @@ def _squeeze_final_output(x):
 
 def _transpose_time_to_spat(x):
     return x.permute(0, 3, 2, 1)
-
