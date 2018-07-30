@@ -129,7 +129,7 @@ class ShallowFBCSPNet(object):
             n_out_time = out.cpu().data.numpy().shape[2]
             self.final_conv_length = n_out_time
         model.add_module('conv_classifier',
-                             nn.Conv2d(n_filters_conv, self.n_classes,
+                             nn.Conv2d(self.n_filters_2, self.n_classes,
                                        (self.final_conv_length, 1), bias=True))
         model.add_module('softmax', nn.LogSoftmax())
         model.add_module('squeeze',  Expression(_squeeze_final_output))
@@ -146,8 +146,22 @@ class ShallowFBCSPNet(object):
         if self.batch_norm:
             init.constant(model.bnorm.weight, 1)
             init.constant(model.bnorm.bias, 0)
+
+        param_dict = dict(list(model.named_parameters()))
+        for block_nr in range(2,3):
+            conv_weight = param_dict['conv_{:d}.weight'.format(block_nr)]
+            init.xavier_uniform(conv_weight, gain=1)
+            if not self.batch_norm:
+                conv_bias = param_dict['conv_{:d}.bias'.format(block_nr)]
+                init.constant(conv_bias, 0)
+            else:
+                bnorm_weight = param_dict['bnorm_{:d}.weight'.format(block_nr)]
+                bnorm_bias = param_dict['bnorm_{:d}.bias'.format(block_nr)]
+                init.constant(bnorm_weight, 1)
+                init.constant(bnorm_bias, 0)
         init.xavier_uniform(model.conv_classifier.weight, gain=1)
         init.constant(model.conv_classifier.bias, 0)
+        
 
         model.eval()
         return model

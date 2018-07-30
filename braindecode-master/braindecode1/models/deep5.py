@@ -149,7 +149,7 @@ class Deep4Net(object):
             n_out_time = out.cpu().data.numpy().shape[2]
             self.final_conv_length = n_out_time
         model.add_module('conv_classifier',
-                             nn.Conv2d(self.n_filters_4, self.n_classes,
+                             nn.Conv2d(self.n_filters_5, self.n_classes,
                                        (self.final_conv_length, 1), bias=True))
         model.add_module('softmax', nn.LogSoftmax())
         model.add_module('squeeze',  Expression(_squeeze_final_output))
@@ -168,7 +168,7 @@ class Deep4Net(object):
             init.constant(model.bnorm.weight, 1)
             init.constant(model.bnorm.bias, 0)
         param_dict = dict(list(model.named_parameters()))
-        for block_nr in range(2,5):
+        for block_nr in range(2,6):
             conv_weight = param_dict['conv_{:d}.weight'.format(block_nr)]
             init.xavier_uniform(conv_weight, gain=1)
             if not self.batch_norm:
