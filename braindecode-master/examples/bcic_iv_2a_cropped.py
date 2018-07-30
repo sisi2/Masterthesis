@@ -30,21 +30,17 @@ log = logging.getLogger(__name__)
 
 
 def run_exp(data_folder, subject_id, low_cut_hz, model, cuda):
-    train_filename = 'A{:01d}T.gdf'.format(subject_id)
-    test_filename = 'A{:01d}E.gdf'.format(subject_id)
-
+    train_filename = 'A{:02d}T.gdf'.format(subject_id)
+    test_filename = 'A{:02d}E.gdf'.format(subject_id)
     train_filepath = os.path.join(data_folder, train_filename)
     test_filepath = os.path.join(data_folder, test_filename)
-
     train_label_filepath = train_filepath.replace('.gdf', '.mat')
-
     test_label_filepath = test_filepath.replace('.gdf', '.mat')
 
     train_loader = BCICompetition4Set2A(
         train_filepath, labels_filename=train_label_filepath)
     test_loader = BCICompetition4Set2A(
         test_filepath, labels_filename=test_label_filepath)
-    #print(train_loader)
     train_cnt = train_loader.load()
     test_cnt = test_loader.load()
 
@@ -146,9 +142,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s',
                         level=logging.DEBUG, stream=sys.stdout)
     # Should contain both .gdf files and .mat-labelfiles from competition
-    #data_folder = '/home/schirrmr/data/bci-competition-iv/2a-gdf/'
-    #data_folder ='/notebooks/braindecode-master/examples/samples'
-    data_folder ='/notebook/samples'
+    data_folder = '/home/schirrmr/data/bci-competition-iv/2a-gdf/'
     subject_id = 1 # 1-9
     low_cut_hz = 4 # 0 or 4
     model = 'shallow' #'shallow' or 'deep'

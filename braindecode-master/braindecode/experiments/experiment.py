@@ -4,11 +4,11 @@ from copy import deepcopy
 import time
 
 import pandas as pd
-#import torch as th
+import torch as th
 
 from braindecode.datautil.splitters import concatenate_sets
 from braindecode.experiments.stopcriteria import MaxEpochs, ColumnBelow, Or
-#from braindecode.torch_ext.util import np_to_var, set_random_seeds
+from braindecode.torch_ext.util import np_to_var, set_random_seeds
 
 log = logging.getLogger(__name__)
 
@@ -206,10 +206,10 @@ class Experiment(object):
         if self.do_early_stop:
             self.rememberer = RememberBest(self.remember_best_column)
         self.epochs_df = pd.DataFrame()
-        # set_random_seeds(seed=2382938, cuda=self.cuda)   For computation optimization
-        # if self.cuda:
-        #     assert th.cuda.is_available(), "Cuda not available"
-        #     self.model.cuda()
+        set_random_seeds(seed=2382938, cuda=self.cuda)
+        if self.cuda:
+            assert th.cuda.is_available(), "Cuda not available"
+            self.model.cuda()
 
     def run_until_first_stop(self):
         """

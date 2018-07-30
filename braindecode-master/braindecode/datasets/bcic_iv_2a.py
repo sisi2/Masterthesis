@@ -10,9 +10,7 @@ class BCICompetition4Set2A(object):
         del self.self
 
     def load(self):
-        print("tessssssssssst")
         cnt = self.extract_data()
-
         events, artifact_trial_mask = self.extract_events(cnt)
         cnt.info['events'] = events
         cnt.info['artifact_trial_mask'] = artifact_trial_mask
@@ -41,8 +39,6 @@ class BCICompetition4Set2A(object):
         raw_edf.info['gdf_events'] = gdf_events
         return raw_edf
 
-    #def extract_csv_data(self):
-
     def extract_events(self, raw_edf):
         # all events
         events = np.array(list(zip(
@@ -58,19 +54,9 @@ class BCICompetition4Set2A(object):
         # event markers 769,770 -> 1,2
         trial_events[:, 1] = trial_events[:, 1] - 768
         # possibly overwrite with markers from labels file
-        print(self.labels_filename)
-        #classes = loadmat(self.labels_filename)['classlabel'].squeeze()
-        size = trial_events.shape[0]
-        classes = []
-        lengh = 0
-        while lengh < size:
-            classes.append(1)
-            classes.append(2)
-            classes.append(3)
-            classes.append(4)
-            lengh = len(classes)
-        
-        trial_events[:, 1] = classes
+        if self.labels_filename is not None:
+            classes = loadmat(self.labels_filename)['classlabel'].squeeze()
+            trial_events[:, 1] = classes
         unique_classes = np.unique(trial_events[:, 1])
         assert np.array_equal([1, 2, 3 ,4], unique_classes), (
             "Expect 1,2,3,4 as class labels, got {:s}".format(
