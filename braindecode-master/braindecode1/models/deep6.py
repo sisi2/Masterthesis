@@ -103,7 +103,7 @@ class Deep4Net(object):
         def add_conv_pool_block(model, n_filters_before,
                                 n_filters, filter_length, block_nr):
             suffix = '_{:d}'.format(block_nr)
-            pool_stride_dict = dict(conv2=2, conv3=2, conv4=1, conv5=1, conv6=1)
+            pool_stride_dict = dict(conv_2=2, conv_3=2, conv_4=1, conv_5=1, conv_6=1)
             model.add_module('drop' + suffix,
                              nn.Dropout(p=self.drop_prob))
             model.add_module('conv' + suffix.format(block_nr),
@@ -135,10 +135,10 @@ class Deep4Net(object):
                             self.filter_length_4, 4)
         add_conv_pool_block(model, self.n_filters_4, self.n_filters_5,
                             self.filter_length_5, 5)
-        add_conv_pool_block(model, self.n_filters_5, self.n_filters_5,
+        add_conv_pool_block(model, self.n_filters_5, self.n_filters_6,
                             self.filter_length_6, 6)
 
-
+       
         model.eval()
         if self.final_conv_length == 'auto':
             out = model(np_to_var(np.ones(
@@ -151,7 +151,7 @@ class Deep4Net(object):
                                        (self.final_conv_length, 1), bias=True))
         model.add_module('softmax', nn.LogSoftmax())
         model.add_module('squeeze',  Expression(_squeeze_final_output))
-
+       
         # Initialization, xavier is same as in our paper...
         # was default from lasagne
         init.xavier_uniform(model.conv_time.weight, gain=1)

@@ -2,19 +2,20 @@ import numpy as np
 from torch import nn
 from torch.nn import init
 from torch.nn.functional import elu
-from braindecode.torch_ext.modules import Expression, AvgPool2dWithConv
+from braindecode.torch_ext.modules import Expression
+from braindecode.torch_ext.functions import safe_log, square
 from braindecode.torch_ext.functions import identity
 from braindecode.torch_ext.util import np_to_var
 
 
-class Deep4Net(object):
+class ShallowFBCSPNet(object):
     """
-    Deep ConvNet model from [1]_.
+    Shallow ConvNet model from [2]_.
 
     References
     ----------
 
-    .. [1] Schirrmeister, R. T., Springenberg, J. T., Fiederer, L. D. J., 
+    .. [2] Schirrmeister, R. T., Springenberg, J. T., Fiederer, L. D. J., 
        Glasstetter, M., Eggensperger, K., Tangermann, M., ... & Ball, T. (2017).
        Deep learning with convolutional neural networks for EEG decoding and
        visualization.
@@ -22,47 +23,43 @@ class Deep4Net(object):
     """
     def __init__(self, in_chans,
                  n_classes,
-                 input_time_length,
-                 final_conv_length,
-                 n_filters_time=25,
-                 n_filters_spat=25,
-                 filter_time_length=10,
-                 pool_time_length=3,
-                 pool_time_stride=3,
-                 n_filters_2=50,
+                 input_time_length=None,
+                 n_filters_time=40,
+                 filter_time_length=25,
+                 n_filters_spat=40,
+                 pool_time_length=25,
+                 pool_time_stride=5,
+                 n_filters_2=80,
                  filter_length_2=10,
-                 n_filters_3=100,
-                 filter_length_3=10,
-                 n_filters_4=150,
-                 filter_length_4=10,
-                 n_filters_5=200,
-                 filter_length_5=10,
-                 first_nonlin=elu,
-                 first_pool_mode='max',
-                 first_pool_nonlin=identity,
+
+                 n_filters_3=40,
+                 filter_length_3=15,
+                 first_nonlin=square,
+                 first_pool_mode='mean',
+                 first_pool_nonlin=safe_log,
                  later_nonlin=elu,
-                 later_pool_mode='max',
+                 later_pool_mode='mean',
                  later_pool_nonlin=identity,
-                 drop_prob=0.5,
-                 double_time_convs=False,
+                 final_conv_length=30,
                  split_first_layer=True,
                  batch_norm=True,
-                 batch_norm_alpha=0.9,
+                 batch_norm_alpha=0.1,
+                 drop_prob=0.5,
                  stride_before_pool=False):
         if final_conv_length == 'auto':
             assert input_time_length is not None
-
         self.__dict__.update(locals())
         del self.self
 
     def create_network(self):
+        #pool_class = dict(max=nn.MaxPool2d, mean=nn.AvgPool2d)[self.pool_mode]
         if self.stride_before_pool:
             conv_stride = self.pool_time_stride
             pool_stride = 1
         else:
             conv_stride = 1
             pool_stride = self.pool_time_stride
-        pool_class_dict = dict(max=nn.MaxPool2d, mean=AvgPool2dWithConv)
+        pool_class_dict = dict(max=nn.MaxPool2d, mean=nn.AvgPool2d)
         first_pool_class = pool_class_dict[self.first_pool_mode]
         later_pool_class = pool_class_dict[self.later_pool_mode]
         model = nn.Sequential()
@@ -74,23 +71,22 @@ class Deep4Net(object):
                                                     stride=1, ))
             model.add_module('conv_spat',
                              nn.Conv2d(self.n_filters_time, self.n_filters_spat,
-                                       (1, self.in_chans),
-                                       stride=(conv_stride, 1),
+                                       (1, self.in_chans), stride=1,
                                        bias=not self.batch_norm))
             n_filters_conv = self.n_filters_spat
         else:
             model.add_module('conv_time',
                              nn.Conv2d(self.in_chans, self.n_filters_time,
                                        (self.filter_time_length, 1),
-                                       stride=(conv_stride, 1),
+                                       stride=1,
                                        bias=not self.batch_norm))
             n_filters_conv = self.n_filters_time
         if self.batch_norm:
             model.add_module('bnorm',
                              nn.BatchNorm2d(n_filters_conv,
                                             momentum=self.batch_norm_alpha,
-                                            affine=True,
-                                            eps=1e-5),)
+                                            affine=True),)
+
         model.add_module('conv_nonlin', Expression(self.first_nonlin))
         model.add_module('pool',
                          first_pool_class(
@@ -101,7 +97,7 @@ class Deep4Net(object):
         def add_conv_pool_block(model, n_filters_before,
                                 n_filters, filter_length, block_nr):
             suffix = '_{:d}'.format(block_nr)
-            pool_stride_later = 1
+            pool_stride_later = 3
             model.add_module('drop' + suffix,
                              nn.Dropout(p=self.drop_prob))
             model.add_module('conv' + suffix.format(block_nr),
@@ -117,29 +113,20 @@ class Deep4Net(object):
                                             eps=1e-5))
             model.add_module('nonlin' + suffix,
                              Expression(self.later_nonlin))
-            
-            if suffix == 3:
-                model.add_module('pool' + suffix,
+
+            model.add_module('pool' + suffix,
                              later_pool_class(
                                  kernel_size=(self.pool_time_length, 1),
                                  stride=(pool_stride_later, 1)))
-            else:
-                model.add_module('pool' + suffix,
-                             later_pool_class(
-                                 kernel_size=(self.pool_time_length, 1),
-                                 stride=(pool_stride, 1)))
-
             model.add_module('pool_nonlin' + suffix,
                              Expression(self.later_pool_nonlin))
 
         add_conv_pool_block(model, n_filters_conv, self.n_filters_2,
-                            self.filter_length_2, 2)
+                            self.filter_length_2, 2)     
+
         add_conv_pool_block(model, self.n_filters_2, self.n_filters_3,
-                            self.filter_length_3, 3)
-        add_conv_pool_block(model, self.n_filters_3, self.n_filters_4,
-                            self.filter_length_4, 4)
-        add_conv_pool_block(model, self.n_filters_4, self.n_filters_5,
-                            self.filter_length_5, 5)
+                            self.filter_length_3, 3)                
+
 
         model.eval()
         if self.final_conv_length == 'auto':
@@ -149,13 +136,12 @@ class Deep4Net(object):
             n_out_time = out.cpu().data.numpy().shape[2]
             self.final_conv_length = n_out_time
         model.add_module('conv_classifier',
-                             nn.Conv2d(self.n_filters_5, self.n_classes,
+                             nn.Conv2d(self.n_filters_3, self.n_classes,
                                        (self.final_conv_length, 1), bias=True))
         model.add_module('softmax', nn.LogSoftmax())
         model.add_module('squeeze',  Expression(_squeeze_final_output))
 
-        # Initialization, xavier is same as in our paper...
-        # was default from lasagne
+        # Initialization, xavier is same as in paper...
         init.xavier_uniform(model.conv_time.weight, gain=1)
         # maybe no bias in case of no split layer and batch norm
         if self.split_first_layer or (not self.batch_norm):
@@ -167,8 +153,9 @@ class Deep4Net(object):
         if self.batch_norm:
             init.constant(model.bnorm.weight, 1)
             init.constant(model.bnorm.bias, 0)
+
         param_dict = dict(list(model.named_parameters()))
-        for block_nr in range(2,6):
+        for block_nr in range(2,4):
             conv_weight = param_dict['conv_{:d}.weight'.format(block_nr)]
             init.xavier_uniform(conv_weight, gain=1)
             if not self.batch_norm:
@@ -179,11 +166,10 @@ class Deep4Net(object):
                 bnorm_bias = param_dict['bnorm_{:d}.bias'.format(block_nr)]
                 init.constant(bnorm_weight, 1)
                 init.constant(bnorm_bias, 0)
-
         init.xavier_uniform(model.conv_classifier.weight, gain=1)
         init.constant(model.conv_classifier.bias, 0)
+        
 
-        # Start in eval mode
         model.eval()
         return model
 
@@ -200,3 +186,4 @@ def _squeeze_final_output(x):
 
 def _transpose_time_to_spat(x):
     return x.permute(0, 3, 2, 1)
+

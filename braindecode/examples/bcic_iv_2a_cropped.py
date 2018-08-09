@@ -148,7 +148,7 @@ if __name__ == '__main__':
     # Should contain both .gdf files and .mat-labelfiles from competition
     #data_folder = '/home/schirrmr/data/bci-competition-iv/2a-gdf/'
     #data_folder ='/notebooks/braindecode-master/examples/samples'
-    data_folder ='/notebook/samples'
+    data_folder ='/home/dansy/Documents/Masterthesis/braindecode/examples/samples'
     subject_id = 1 # 1-9
     low_cut_hz = 4 # 0 or 4
     model = 'shallow' #'shallow' or 'deep'

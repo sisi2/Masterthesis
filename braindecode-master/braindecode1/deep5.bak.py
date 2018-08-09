@@ -47,7 +47,7 @@ class Deep4Net(object):
                  double_time_convs=False,
                  split_first_layer=True,
                  batch_norm=True,
-                 batch_norm_alpha=0.9,
+                 batch_norm_alpha=0.1,
                  stride_before_pool=False):
         if final_conv_length == 'auto':
             assert input_time_length is not None

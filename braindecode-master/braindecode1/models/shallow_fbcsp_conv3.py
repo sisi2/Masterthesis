@@ -43,7 +43,7 @@ class ShallowFBCSPNet(object):
                  final_conv_length=30,
                  split_first_layer=True,
                  batch_norm=True,
-                 batch_norm_alpha=0.1,
+                 batch_norm_alpha=0.7,
                  drop_prob=0.5,
                  stride_before_pool=False):
         if final_conv_length == 'auto':
